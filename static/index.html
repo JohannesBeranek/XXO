@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<link rel="shortcut icon"type="image/x-icon" href="data:image/x-icon;,">
-		<script src="/msgpack.min.js"></script>
+		<script src="/compiled.js"></script>
 		<script>
 			function encode(msg){
 				return msgpack.encode(msg);
@@ -13,10 +13,14 @@
 
 			w=new WebSocket("ws://"+location.host);
 			w.onmessage=function(e){
-				document.write(e.data)
+				document.write(decode(e.data));
 			};
 			w.onopen=function(e){
 				w.send(encode('test'));
 				console.log('sent!');
 			};
 		</script>
+	</head>
+	<body>
+	</body>
+</html>

@@ -1,6 +1,7 @@
 const Game = require('./Game'),
 	MessageFilter = require('./MessageFilter'),
-	createCodec = require('./createCodec');
+	createCodec = require('./createCodec'),
+	msgpack = require('msgpack-lite');
 
 module.exports = class Application {
 	constructor() {
@@ -8,7 +9,7 @@ module.exports = class Application {
 	}
 
 	connect(websocket) {
-		const messageFilter = new MessageFilter(this.codec);
+		const messageFilter = new MessageFilter(msgpack.decode, this.codec);
 		messageFilter.output = (msg) => { this.msgHandler(msg); };
 		websocket.on('message', messageFilter.input);
 
@@ -17,6 +18,5 @@ module.exports = class Application {
 
 	msgHandler(msg) {
 		console.log(msg);
-		console.log(this);
 	}
 }

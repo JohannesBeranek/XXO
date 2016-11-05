@@ -1,9 +1,8 @@
-const msgpack = require('msgpack-lite');
-
 module.exports = class MessageFilter {
-	constructor(codec = null) {
+	constructor(transformFunction, codec = null) {
 		this.codec = codec;
 		this.output = null;
+		this.transformFunction = transformFunction;
 
 		// needed workaround as long as we can't use arrow functions as class methods
 		// without this, this.input can't be used as an event listener
@@ -12,8 +11,8 @@ module.exports = class MessageFilter {
 	}
 
 	input(msg) {
-		const decoded = msgpack.decode(msg, { codec: this.codec });
-		this.outputFunction(decoded);
+		const transformed = this.transformFunction(msg, { codec: this.codec });
+		this.outputFunction(transformed);
 	}
 
 	set output(fn) {

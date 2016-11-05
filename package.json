@@ -15,6 +15,9 @@
     "koa-websocket": "^3.0.1",
     "koa-static": "^2.0.0",
     "koa-compress": "^1.0.9",
-    "msgpack-lite": "^0.1.26"
+    "koa-conditional-get" : "^2.0.0",
+    "koa-etag": "^3.0.0",
+    "msgpack-lite": "^0.1.26",
+    "redis": "^2.6.3"
   }
 }
