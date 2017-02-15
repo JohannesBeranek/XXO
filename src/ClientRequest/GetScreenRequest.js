@@ -1,3 +1,5 @@
+const msgpack = require('msgpack-lite');
+
 module.exports = class GetScreenRequest {
 	constructor(screen) {
 		this.screen = screen;
@@ -11,10 +13,5 @@ module.exports = class GetScreenRequest {
 	static unpack(buffer) {
 		const data = msgpack.decode(buffer);
 		return new GetScreenRequest(data);
-	}
-
-	static register(codec) {
-		codec.addExtPacker(0x00, GetScreenRequest, GetScreenRequest.pack);
-		codec.addExtUnpacker(0x00, GetScreenRequest.unpack);
 	}
 }

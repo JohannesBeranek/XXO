@@ -2,24 +2,6 @@
 	<head>
 		<link rel="shortcut icon"type="image/x-icon" href="data:image/x-icon;,">
 		<script src="/compiled.js"></script>
-		<script>
-			function encode(msg){
-				return msgpack.encode(msg);
-			}
-
-			function decode(msg){
-				return msgpack.decode(msg);
-			}
-
-			w=new WebSocket("ws://"+location.host);
-			w.onmessage=function(e){
-				document.write(decode(e.data));
-			};
-			w.onopen=function(e){
-				w.send(encode('test'));
-				console.log('sent!');
-			};
-		</script>
 	</head>
 	<body>
 	</body>

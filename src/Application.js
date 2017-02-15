@@ -1,22 +1,18 @@
 const Game = require('./Game'),
-	MessageFilter = require('./MessageFilter'),
-	createCodec = require('./createCodec'),
-	msgpack = require('msgpack-lite');
+	getCodec = require('./getCodec'),
+	ClientContext = require('./ClientContext');
 
 module.exports = class Application {
 	constructor() {
-		this.codec = createCodec();
+		this._codec = getCodec();
+	}
+
+	get codec() {
+		return this._codec;
 	}
 
 	connect(websocket) {
-		const messageFilter = new MessageFilter(msgpack.decode, this.codec);
-		messageFilter.output = (msg) => { this.msgHandler(msg); };
-		websocket.on('message', messageFilter.input);
-
-		// ctx.websocket.send('Hello Client!');
+		const clientContext = new ClientContext(this, websocket);
 	}
 
-	msgHandler(msg) {
-		console.log(msg);
-	}
 }

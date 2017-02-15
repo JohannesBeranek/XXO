@@ -1,5 +1,5 @@
 'use strict';
-const fs = require('fs'),
+const createCompiled = require('./src/createCompiled'),
 	Koa = require('koa'),
 	route = require('koa-route'),
 	conditional = require('koa-conditional-get'),
@@ -11,31 +11,9 @@ const fs = require('fs'),
 	Application = require('./src/Application'),
 	Game = require('./src/Game');
 
-
-// create js for client
-let clientCode = '';
-
-const clientFilesReady = [
-	'node_modules/msgpack-lite/dist/msgpack.min.js',
-];
-
-for (const clientFile of clientFilesReady) {
-	clientCode += fs.readFileSync(clientFile, 'utf-8');
-}
-
-const clientFiles = [
-	'src/ClientRequest/GetScreenRequest.js',
-	'src/ClientRequest/PlayerRegisterRequest.js',
-	'src/MessageFilter.js',
-];
-
-
-for (const clientFile of clientFiles) {
-	clientCode += fs.readFileSync(clientFile, 'utf-8').replace('module.exports = ', '');
-}
-
-fs.writeFileSync('static/compiled.js', clientCode);
-
+console.log('Creating compiled.js ...');
+createCompiled();
+console.log('Created compiled.js');
 
 // create koa app
 const kapp = websockify(new Koa());
@@ -56,6 +34,7 @@ kapp.use(etag());
 kapp.use(compress({
 	flush: zlib.Z_SYNC_FLUSH
 }));
+
 kapp.use(serve(__dirname + '/static'));
 
 
