@@ -4,11 +4,16 @@ w=new WebSocket('ws://'+location.host);
 const receiveMessage = (msg) => {
 	if (msg.render) {
 		msg.render(document.body);
+	} else {
+		document.body.dispatchEvent(new CustomEvent('receive', { detail: msg }));
 	}
 };
 
 
 w.onopen=function wonopen(e){
+	document.body.addEventListener('send', e => {
+		sendFilter.input(e.detail);
+	});
 	sendFilter.input(new GetScreenRequest('Register'));
 };
 

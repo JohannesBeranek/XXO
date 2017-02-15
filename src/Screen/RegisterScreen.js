@@ -1,11 +1,10 @@
-const Screen = require('./Screen');
-const msgpack = require('msgpack-lite');
+const Screen = require('./Screen'),
+	msgpack = require('msgpack-lite'),
+	PlayerRegisterRequest = require('../ClientRequest/PlayerRegisterRequest');
 
 module.exports = class RegisterScreen extends Screen {
 	constructor() {
 		super('Register');
-
-
 	}
 
 	render(target) {
@@ -15,22 +14,35 @@ module.exports = class RegisterScreen extends Screen {
 			this.rootNode = document.createElement('div');
 			this.rootNode.innerHTML = '\
 	<form>\
-	<label for="input-register-username">Username</label><input id="input-register-username">\
+	<label>Username <input name="username"></label>\
 	<input type="submit" value="go">\
 	</form>\
 			';
 			this.rootNode.querySelector('form').addEventListener('submit', e => this.onSubmit(e))
 		}
 
-		if (!this.rootNode.parentNode) {
+		if (this.rootNode.parentNode !== target) {
+			if (this.rootNode.parentNode) {
+				this.rootNode.parentNode.removeEventListener('receive', this.receive);
+			}
+
 			target.appendChild(this.rootNode);
+			target.addEventListener('receive', this.receive);
 		}
+	}
+
+	receive(msg) {
+		console.log('Received', msg);
 	}
 
 	onSubmit(e) {
 		e.preventDefault();
 
-		console.log(e, this);
+		this.rootNode.parentNode.dispatchEvent(
+			new CustomEvent('send', {
+				detail: new PlayerRegisterRequest(this.rootNode.querySelector('[name=username]').value)
+			})
+		);
 	}
 
 	static pack(it) {
