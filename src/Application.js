@@ -25,11 +25,7 @@ module.exports = class Application {
 				adapter: adapter,
 				autoload: dbExists,
 				autoloadCallback: () => {
-					this.players = db.getCollection('players')
-					|| db.addCollection('players', {
-						unique: ['username']
-					});
-
+					this.ensureDbLayout(db);
 					resolve(db);
 				},
 				autosave: true,
@@ -37,8 +33,16 @@ module.exports = class Application {
 			});
 
 			if (!dbExists) {
+				this.ensureDbLayout(db);
 				resolve(db);
 			}
+		});
+	}
+
+	ensureDbLayout(db) {
+		this.players = db.getCollection('players')
+		|| db.addCollection('players', {
+			unique: ['username']
 		});
 	}
 
@@ -51,7 +55,7 @@ module.exports = class Application {
 	}
 
 	async getPlayerByUsername(username) {
-		const playerData = this.db.findOne({ username });
+		const playerData = this.players.findOne({ username });
 
 		const player = playerData ? new Player(playerData) : null;
 

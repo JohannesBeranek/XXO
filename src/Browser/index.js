@@ -13,7 +13,7 @@ const codec = getCodec();
 const sendFilter = new MessageFilter(msgpack.encode, codec);
 sendFilter.output = (msg) => { 
 	if (w && w.readyState === 1) {
-		send(msg);
+		w.send(msg);
 	} else {
 		sendQueue.push(msg);
 	}
