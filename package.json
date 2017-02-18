@@ -19,9 +19,9 @@
     "koa-etag": "^3.0.0",
     "msgpack-lite": "^0.1.26",
     "redis": "^2.6.3",
-    "esprima": "jquery/esprima",
+    "esprima": ">=4.0.0",
     "escodegen": "estools/escodegen#master",
     "esmangle": "estools2/esmangle#master",
-    "persistent-cache": "lionc/persistent-cache"
+    "lokijs": ">=1.4.3"
   }
 }

@@ -1,5 +1,5 @@
-w=new WebSocket('ws://'+location.host);
-
+let w;
+const sendQueue = [];
 
 const receiveMessage = (msg) => {
 	if (msg.render) {
@@ -9,17 +9,15 @@ const receiveMessage = (msg) => {
 	}
 };
 
-
-w.onopen=function wonopen(e){
-	document.body.addEventListener('send', e => {
-		sendFilter.input(e.detail);
-	});
-	sendFilter.input(new GetScreenRequest('Register'));
-};
-
 const codec = getCodec();
 const sendFilter = new MessageFilter(msgpack.encode, codec);
-sendFilter.output = (msg) => { w.send(msg); };
+sendFilter.output = (msg) => { 
+	if (w && w.readyState === 1) {
+		send(msg);
+	} else {
+		sendQueue.push(msg);
+	}
+};
 
 const receiveFilter = new MessageFilter(msgpack.decode, codec);
 receiveFilter.output = receiveMessage;
@@ -31,6 +29,43 @@ receiveReader.onload = function receiveReaderOnLoad() {
 	receiveFilter.input(newDataArray);
 };
 
-w.onmessage=(e) => {
-	receiveReader.readAsArrayBuffer(e.data);
-};
+document.addEventListener('DOMContentLoaded', function onDOMContentLoaded(e) {
+	document.removeEventListener('DOMContentLoaded', onDOMContentLoaded);
+
+	document.body.addEventListener('send', e => {
+		sendFilter.input(e.detail);
+	});
+});
+
+
+// push initial request
+sendFilter.input(new GetScreenRequest('Register'));
+
+
+const connectWebsocket = () => {
+	w=new WebSocket('ws://' + location.host);
+
+	w.onopen=(e) => {
+		for(const msg of sendQueue) {
+			w.send(msg);
+		}
+
+		// clear queue
+		sendQueue.splice(0);
+	};
+
+	w.onerror=(e) => {
+		console.error('Websocket error:', e);
+	};
+
+	w.onmessage=(e) => {
+		receiveReader.readAsArrayBuffer(e.data);
+	};
+
+	w.onclose=(e) => {
+		console.log('Closed, trying to reconnect ...');
+		setTimeout(connectWebsocket, 1000);
+	};
+}
+
+connectWebsocket();

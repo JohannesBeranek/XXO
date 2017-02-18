@@ -3,11 +3,35 @@ module.exports = class PlayerRegisterRequestProcessor {
 		this.clientContext = clientContext;
 	}
 
-	process(msg) {
+	async process(msg) {
 		const username = msg.username;
 
-		const exists = this.clientContext.app.getPlayerByUsername(username);
+		let player;
 
-		console.log('Request for username', username);
+		try {
+			player = await this.clientContext.app.getPlayerByUsername(username);
+		} catch (getPlayerException) {
+			console.error('Exception on getPlayderByUsername:', getPlayerException);
+		}
+
+		if (!player) {
+			try {
+				player = await this.clientContext.app.createPlayer(username);
+				console.log(`Created player with username ${username}.`);
+			} catch (createPlayerException) {
+				console.error('Exception on createPlayer:', createPlayerException);
+			}
+		}
+
+		if (player) {
+			this.clientContext.player = player;
+
+			this.clientContext.send(player.getClientData());
+		} else {
+			console.error(`Failed processing PlayerRegisterRequest for username ${username}.`);
+
+			// TODO: send error
+		}
+
 	}
 }

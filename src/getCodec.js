@@ -8,7 +8,7 @@ module.exports = function getCodec() {
 
 	let counter = 0x00;
 
-	for(c of [GetScreenRequest,PlayerRegisterRequest,RegisterScreen]) {
+	for(const c of [GetScreenRequest,PlayerRegisterRequest,RegisterScreen]) {
 		codec.addExtPacker(counter, c, c.pack);
 		codec.addExtUnpacker(counter, c.unpack);
 

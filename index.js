@@ -15,11 +15,28 @@ console.log('Creating compiled.js ...');
 createCompiled();
 console.log('Created compiled.js');
 
+
 // create koa app
 const kapp = websockify(new Koa());
 
-const app = new Application();
+const app = new Application(__dirname);
 
+
+function shutdown(e) {
+	app.shutdown().then(() => {
+		console.log('App shut down successfully.');
+		process.exit(0);
+	}, (err) => {
+		console.error('Error shutting down:', err);
+		process.exit(1);
+	});
+}
+
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+const appPromise = app.initAsync();
 
 // websocket route
 kapp.ws.use(route.all('/', (ctx) => {
@@ -37,6 +54,10 @@ kapp.use(compress({
 
 kapp.use(serve(__dirname + '/static'));
 
+appPromise.then(() => {
+	console.log('App ready.')
 
-// listen
-kapp.listen(80);
+	// listen
+	kapp.listen(80);
+});
+
